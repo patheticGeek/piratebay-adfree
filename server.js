@@ -83,6 +83,11 @@ async function getTorrent(link) {
       var detailsFrame = document.querySelector('div#detailsframe');
       var title = detailsFrame.querySelector('div#title').innerText;
       var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
+      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[0]) {
+        var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
+      } else {
+        var uploaded = 'not avail';
+      }
       if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[2]) {
         var seeds = detailsFrame.querySelectorAll('div#details > .col2 > dd')[2].innerText;
       } else {
@@ -90,7 +95,11 @@ async function getTorrent(link) {
       }
       var downloadLink = detailsFrame.querySelector('div.download > a').href;
       var info = detailsFrame.querySelector('div.nfo > pre').innerText;
-      var uploadedBy = detailsFrame.querySelectorAll('div#details > .col2 > dd')[1].innerText;
+      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[1]) {
+        var uploadedBy = detailsFrame.querySelectorAll('div#details > .col2 > dd')[1].innerText;
+      } else {
+        var uploadedBy = 'not avail';
+      }
 
       return { error: false, torrent: { title, uploaded, uploadedBy, seeds, info, downloadLink } };
     });
