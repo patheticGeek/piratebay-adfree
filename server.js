@@ -82,7 +82,6 @@ async function getTorrent(link) {
     var searchResults = await page.evaluate(async () => {
       var detailsFrame = document.querySelector('div#detailsframe');
       var title = detailsFrame.querySelector('div#title').innerText;
-      var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
       if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[0]) {
         var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
       } else {
