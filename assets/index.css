@@ -389,7 +389,7 @@ label {
 @media screen and (max-width: 600px) {
   .card {
     width: 100%;
-    margin: auto 0px;
+    margin: 12px 0px;
   }
   .input-group {
     flex-direction: column;
@@ -403,4 +403,11 @@ label {
     margin-top: auto;
     margin-bottom: auto;
   }
+}
+
+.credits {
+  margin-top: auto;
+  padding: 12px 16px;
+  background-color: var(--card-background);
+  color: var(--color);
 }

@@ -51,6 +51,9 @@ class MyApp extends App {
           loadingClassNames='loading-indicator'
         >
           <Component {...pageProps} />
+          <div className='credits'>
+            Made by <a href='https://instagram.com/pathetic_geek'>@pathetic_geek</a>
+          </div>
         </PageTransition>
         <style jsx global>{`
           .page-transition-enter {
