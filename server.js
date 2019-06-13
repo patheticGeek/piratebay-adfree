@@ -90,7 +90,7 @@ async function getTorrent(link) {
       var i = 0;
       var details = [];
       infoTitle.forEach(text => {
-        if (text.innerText !== 'Info Hash:' || text.innerText !== 'Comments') {
+        if (text.innerText !== 'Info Hash:' && text.innerText !== 'Comments') {
           details.push({ infoTitle: text.innerText, infoText: infoText[i].innerText });
         }
         i += 1;
