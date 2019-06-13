@@ -3,10 +3,13 @@ import 'isomorphic-fetch';
 import loadingSvg from '../assets/loading.svg';
 import Link from 'next/link';
 import '../assets/index.css';
+const dev = process.env.NODE_ENV !== 'production';
 
 export default class Index extends Component {
   static async getInitialProps() {
-    const response = await fetch(`https://piratebay-adfree.herokuapp.com/sitesAvail`);
+    const api = 'https://piratebay-adfree.herokuapp.com';
+    const localhost = 'http://localhost:3000';
+    const response = await fetch(`${dev ? localhost : api}/sitesAvail`);
     if (response.status !== 200) {
       return { error: true, message: 'Cannot reach Servers' };
     }
@@ -34,10 +37,10 @@ export default class Index extends Component {
 
   searchTorrents = async () => {
     this.setState({ searchResultsLoading: true });
+    const api = 'https://piratebay-adfree.herokuapp.com';
+    const localhost = 'http://localhost:3000';
     const response = await fetch(
-      `https://piratebay-adfree.herokuapp.com/getSearch?site=${this.state.site}&search=${
-        this.state.searchTerm
-      }`
+      `${dev ? localhost : api}/getSearch?site=${this.state.site}&search=${this.state.searchTerm}`
     );
     if (response.status !== 200) {
       this.setState({ searchResults: { error: true, message: 'Cannot reach server' } });

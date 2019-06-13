@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'next/router';
 import 'isomorphic-fetch';
 import '../assets/index.css';
+const dev = process.env.NODE_ENV !== 'production';
 
 class Torrent extends Component {
   static async getInitialProps({ query: { link } }) {
-    const response = await fetch(`https://piratebay-adfree.herokuapp.com/getTorrent?link=${link}`);
+    const api = 'https://piratebay-adfree.herokuapp.com';
+    const localhost = 'http://localhost:3000';
+    const response = await fetch(`${dev ? localhost : api}/getTorrent?link=${link}`);
     if (response.status !== 200) {
       return { error: true, message: 'Cannot reach server' };
     }
@@ -25,11 +28,12 @@ class Torrent extends Component {
         <div className='card'>
           <h2 className='card-title'>{this.state.torrent.title}</h2>
           <div className='card-body'>
-            <div className='inline'>
-              <span>Uploaded by: {this.state.torrent.uploadedBy}</span>
-              <span className='right'>Seeds: {this.state.torrent.seeds}</span>
-            </div>
-            <span>Uploaded on: {this.state.torrent.uploaded}</span>
+            {this.state.torrent.details.map((detail, i) => (
+              <div className='inline' key={i}>
+                <h4>{detail.infoTitle}</h4>
+                <h4 className='right'>{detail.infoText}</h4>
+              </div>
+            ))}
             <div className='info-title'>Info from uploader</div>
             <pre className='info'>{this.state.torrent.info}</pre>
           </div>

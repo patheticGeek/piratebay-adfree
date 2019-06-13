@@ -82,25 +82,21 @@ async function getTorrent(link) {
     var searchResults = await page.evaluate(async () => {
       var detailsFrame = document.querySelector('div#detailsframe');
       var title = detailsFrame.querySelector('div#title').innerText;
-      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[0]) {
-        var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
-      } else {
-        var uploaded = 'not avail';
-      }
-      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[2]) {
-        var seeds = detailsFrame.querySelectorAll('div#details > .col2 > dd')[2].innerText;
-      } else {
-        var seeds = 'not avail';
-      }
       var downloadLink = detailsFrame.querySelector('div.download > a').href;
       var info = detailsFrame.querySelector('div.nfo > pre').innerText;
-      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[1]) {
-        var uploadedBy = detailsFrame.querySelectorAll('div#details > .col2 > dd')[1].innerText;
-      } else {
-        var uploadedBy = 'not avail';
-      }
 
-      return { error: false, torrent: { title, uploaded, uploadedBy, seeds, info, downloadLink } };
+      var infoTitle = document.querySelectorAll('dt');
+      var infoText = document.querySelectorAll('dd');
+      var i = 0;
+      var details = [];
+      infoTitle.forEach(text => {
+        if (text.innerText !== 'Info Hash:' || text.innerText !== 'Comments') {
+          details.push({ infoTitle: text.innerText, infoText: infoText[i].innerText });
+        }
+        i += 1;
+      });
+
+      return { error: false, torrent: { title, info, downloadLink, details } };
     });
 
     await page.close();

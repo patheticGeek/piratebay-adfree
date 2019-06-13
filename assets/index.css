@@ -385,6 +385,8 @@ label {
 .torrentDetails > .card .info {
   background: var(--card-background);
   padding: 8px 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 @media screen and (max-width: 600px) {
