@@ -83,7 +83,11 @@ async function getTorrent(link) {
       var detailsFrame = document.querySelector('div#detailsframe');
       var title = detailsFrame.querySelector('div#title').innerText;
       var uploaded = detailsFrame.querySelectorAll('div#details > .col2 > dd')[0].innerText;
-      var seeds = detailsFrame.querySelectorAll('div#details > .col2 > dd')[2].innerText;
+      if (detailsFrame.querySelectorAll('div#details > .col2 > dd')[2]) {
+        var seeds = detailsFrame.querySelectorAll('div#details > .col2 > dd')[2].innerText;
+      } else {
+        var seeds = 'not avail';
+      }
       var downloadLink = detailsFrame.querySelector('div.download > a').href;
       var info = detailsFrame.querySelector('div.nfo > pre').innerText;
       var uploadedBy = detailsFrame.querySelectorAll('div#details > .col2 > dd')[1].innerText;
