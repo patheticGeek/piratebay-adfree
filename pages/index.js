@@ -99,6 +99,9 @@ export default class Index extends Component {
               </div>
             </div>
           ))}
+        <div className='credits'>
+          Made by <a href='https://instagram.com/pathetic_geek'>@pathetic_geek</a>
+        </div>
       </main>
     );
   }

@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Loader from '../components/Loader';
 import '../assets/index.css';
 
-const TIMEOUT = 300;
+const TIMEOUT = 0;
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
@@ -51,9 +51,6 @@ class MyApp extends App {
           loadingClassNames='loading-indicator'
         >
           <Component {...pageProps} />
-          <div className='credits'>
-            Made by <a href='https://instagram.com/pathetic_geek'>@pathetic_geek</a>
-          </div>
         </PageTransition>
         <style jsx global>{`
           .page-transition-enter {
