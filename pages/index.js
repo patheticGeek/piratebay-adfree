@@ -4,11 +4,9 @@ import loadingSvg from '../assets/loading.svg';
 import Link from 'next/link';
 import '../assets/index.css';
 
-const port = parseInt(process.env.PORT, 10) || 3000;
-
 export default class Index extends Component {
   static async getInitialProps() {
-    const response = await fetch(`http://localhost:${port}/sitesAvail`);
+    const response = await fetch(`https://piratebay-adfree.herokuapp.com/sitesAvail`);
     if (response.status !== 200) {
       return { error: true, message: 'Cannot reach Servers' };
     }
@@ -37,7 +35,9 @@ export default class Index extends Component {
   searchTorrents = async () => {
     this.setState({ searchResultsLoading: true });
     const response = await fetch(
-      `http://localhost:${port}/getSearch?site=${this.state.site}&search=${this.state.searchTerm}`
+      `https://piratebay-adfree.herokuapp.com/getSearch?site=${this.state.site}&search=${
+        this.state.searchTerm
+      }`
     );
     if (response.status !== 200) {
       this.setState({ searchResults: { error: true, message: 'Cannot reach server' } });
@@ -52,7 +52,7 @@ export default class Index extends Component {
         {this.state.nav === 'selectProxies' && (
           <div className='proxyAvailWrapper'>
             <h2>Select a proxy server</h2>
-            {!this.state.proxiesAvail.error &&
+            {this.state.proxiesAvail.proxies.length > 0 &&
               this.state.proxiesAvail.proxies.map((proxy, i) => (
                 <div className='card proxyAvail' key={i}>
                   <div className='card-body'>

@@ -3,11 +3,9 @@ import { withRouter } from 'next/router';
 import 'isomorphic-fetch';
 import '../assets/index.css';
 
-const port = parseInt(process.env.PORT, 10) || 3000;
-
 class Torrent extends Component {
   static async getInitialProps({ query: { link } }) {
-    const response = await fetch(`http://localhost:${port}/getTorrent?link=${link}`);
+    const response = await fetch(`https://piratebay-adfree.herokuapp.com/getTorrent?link=${link}`);
     if (response.status !== 200) {
       return { error: true, message: 'Cannot reach server' };
     }

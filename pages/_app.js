@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Loader from '../components/Loader';
 import '../assets/index.css';
 
-const TIMEOUT = 600;
+const TIMEOUT = 300;
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
