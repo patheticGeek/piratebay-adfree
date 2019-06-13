@@ -18,8 +18,8 @@ async function getSitesAvail() {
       var proxies = [];
       list.forEach(item => {
         proxies.push({
-          site: item.querySelectorAll('td')[0].innerText,
-          link: 'https://' + item.querySelectorAll('td')[0].innerText,
+          name: item.querySelectorAll('td')[0].innerText,
+          site: 'https://' + item.querySelectorAll('td')[0].innerText,
           country: item.querySelectorAll('td')[1].innerText,
           speed: item.querySelectorAll('td')[2].innerText
         });
@@ -104,19 +104,11 @@ async function getTorrent(link) {
 app.prepare().then(() => {
   const server = express();
 
-  // server.get('/posts/:id', (req, res) => {
-  //   return app.render(req, res, '/posts', { id: req.params.id })
-  // })
-
-  server.get('*', (req, res) => {
-    return handle(req, res);
-  });
-
   server.get('/sitesAvail', async (req, res) => {
     res.send(await getSitesAvail());
   });
 
-  server.get('/search', async (req, res) => {
+  server.get('/getSearch', async (req, res) => {
     let search = req.query.search;
     let site = req.query.site;
     if (search === '' || !search || site === '' || !site) {
@@ -126,13 +118,17 @@ app.prepare().then(() => {
     }
   });
 
-  server.get('/torrent', async (req, res) => {
+  server.get('/getTorrent', async (req, res) => {
     let link = req.query.link;
     if (link === '' || !link) {
       res.send({ error: true, errorMessage: 'Link cannot be empty' });
     } else {
       res.send(await getTorrent(link));
     }
+  });
+
+  server.get('*', (req, res) => {
+    return handle(req, res);
   });
 
   server.listen(port, err => {
