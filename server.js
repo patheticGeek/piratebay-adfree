@@ -1,42 +1,28 @@
 const express = require('express');
 const next = require('next');
 const puppeteer = require('puppeteer');
+const cacheableResponse = require('cacheable-response');
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-async function getSitesAvail() {
-  try {
-    var browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-    var page = await browser.newPage();
-    await page.goto('https://piratebay-proxylist.se/');
+const torrentCache = cacheableResponse({
+  ttl: 1000 * 60 * 60 * 24, // 24hour
+  get: async ({ req, res, link }) => ({
+    data: await getTorrent(link)
+  }),
+  send: ({ data, res }) => res.send(data)
+});
 
-    var searchResults = await page.evaluate(async () => {
-      var list = document.querySelectorAll('table.proxies > tbody > tr');
-      var proxies = [];
-      list.forEach(item => {
-        proxies.push({
-          name: item.querySelectorAll('td')[0].innerText,
-          site: 'https://' + item.querySelectorAll('td')[0].innerText,
-          country: item.querySelectorAll('td')[1].innerText,
-          speed: item.querySelectorAll('td')[2].innerText
-        });
-      });
-
-      return { error: false, proxies };
-    });
-
-    await page.close();
-    await browser.close();
-
-    return searchResults;
-  } catch (err) {
-    console.log(err);
-    return { error: true, message: 'Runtime error occured' };
-  }
-}
+const searchCache = cacheableResponse({
+  ttl: 1000 * 60 * 60, // 1hour
+  get: async ({ req, res, site, search }) => ({
+    data: await getSearchResults(site, search)
+  }),
+  send: ({ data, res }) => res.send(data)
+});
 
 async function getSearchResults(site, search) {
   try {
@@ -117,17 +103,13 @@ app.prepare().then(() => {
     next();
   });
 
-  server.get('/sitesAvail', async (req, res) => {
-    res.send(await getSitesAvail());
-  });
-
   server.get('/getSearch', async (req, res) => {
     let search = req.query.search;
     let site = req.query.site;
     if (search === '' || !search || site === '' || !site) {
       res.send({ error: true, errorMessage: 'Site or search cannot be empty' });
     } else {
-      res.send(await getSearchResults(site, search));
+      return searchCache({ req, res, site, search });
     }
   });
 
@@ -136,7 +118,7 @@ app.prepare().then(() => {
     if (link === '' || !link) {
       res.send({ error: true, errorMessage: 'Link cannot be empty' });
     } else {
-      res.send(await getTorrent(link));
+      return torrentCache({ req, res, link });
     }
   });
 

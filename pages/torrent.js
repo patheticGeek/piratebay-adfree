@@ -52,5 +52,3 @@ class Torrent extends Component {
 }
 
 export default withRouter(Torrent);
-
-//torrent: { title, uploaded, uploadedBy, seeds, info, downloadLink }
