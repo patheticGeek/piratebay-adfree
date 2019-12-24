@@ -7,7 +7,7 @@ const dev = process.env.NODE_ENV !== 'production';
 
 export default class Index extends Component {
   state = {
-    site: 'https://proxtpb.art/',
+    site: 'https://bayunblocked.net/',
     searchTerm: '',
     searchResults: {},
     searchResultsLoading: false,
