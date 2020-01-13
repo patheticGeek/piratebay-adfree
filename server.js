@@ -1,12 +1,20 @@
-const express = require('express');
-const next = require('next');
-const puppeteer = require('puppeteer');
-const cacheableResponse = require('cacheable-response');
+const express = require("express");
+const next = require("next");
+const axios = require("axios");
+const puppeteer = require("puppeteer");
+const cacheableResponse = require("cacheable-response");
 
 const port = parseInt(process.env.PORT, 10) || 3000;
-const dev = process.env.NODE_ENV !== 'production';
+const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
+
+setInterval(async () => {
+  const data = await fetch(
+    "https://ping-pong-sn.herokuapp.com/ping?link=https://piratebay-adfree.herokuapp.com"
+  );
+  console.log("setInterval triggred, status: ", data.status);
+}, 1560000);
 
 const torrentCache = cacheableResponse({
   ttl: 1000 * 60 * 60 * 24, // 24hour
@@ -26,23 +34,28 @@ const searchCache = cacheableResponse({
 
 async function getSearchResults(site, search) {
   try {
-    var browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+    var browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"]
+    });
     var page = await browser.newPage();
-    await page.goto(site + '/s/?q=' + search);
+    await page.goto(site + "/s/?q=" + search);
 
     var searchResults = await page.evaluate(async () => {
-      var searchResults = document.querySelector('div#SearchResults');
-      var tableRows = searchResults.querySelectorAll('tr');
+      var searchResults = document.querySelector("div#SearchResults");
+      var tableRows = searchResults.querySelectorAll("tr");
       var results = [];
 
       tableRows.forEach(item => {
-        if (item.classList.value === 'header') {
+        if (item.classList.value === "header") {
         } else {
           results.push({
-            name: item.querySelectorAll('td')[1].querySelector('a').innerText,
-            link: item.querySelectorAll('td')[1].querySelector('a').href,
-            seeds: item.querySelectorAll('td')[2].innerText,
-            details: item.querySelectorAll('td')[1].querySelector('font.detDesc').innerText
+            name: item.querySelectorAll("td")[1].querySelector("a").innerText,
+            link: item.querySelectorAll("td")[1].querySelector("a").href,
+            seeds: item.querySelectorAll("td")[2].innerText,
+            details: item
+              .querySelectorAll("td")[1]
+              .querySelector("font.detDesc").innerText
           });
         }
       });
@@ -55,29 +68,35 @@ async function getSearchResults(site, search) {
     return searchResults;
   } catch (err) {
     console.log(err);
-    return { error: true, message: 'Runtime error occured' };
+    return { error: true, message: "Runtime error occured" };
   }
 }
 
 async function getTorrent(link) {
   try {
-    var browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+    var browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"]
+    });
     var page = await browser.newPage();
     await page.goto(link);
 
     var searchResults = await page.evaluate(async () => {
-      var detailsFrame = document.querySelector('div#detailsframe');
-      var title = detailsFrame.querySelector('div#title').innerText;
-      var downloadLink = detailsFrame.querySelector('div.download > a').href;
-      var info = detailsFrame.querySelector('div.nfo > pre').innerText;
+      var detailsFrame = document.querySelector("div#detailsframe");
+      var title = detailsFrame.querySelector("div#title").innerText;
+      var downloadLink = detailsFrame.querySelector("div.download > a").href;
+      var info = detailsFrame.querySelector("div.nfo > pre").innerText;
 
-      var infoTitle = document.querySelectorAll('dt');
-      var infoText = document.querySelectorAll('dd');
+      var infoTitle = document.querySelectorAll("dt");
+      var infoText = document.querySelectorAll("dd");
       var i = 0;
       var details = [];
       infoTitle.forEach(text => {
-        if (text.innerText !== 'Info Hash:' && text.innerText !== 'Comments') {
-          details.push({ infoTitle: text.innerText, infoText: infoText[i].innerText });
+        if (text.innerText !== "Info Hash:" && text.innerText !== "Comments") {
+          details.push({
+            infoTitle: text.innerText,
+            infoText: infoText[i].innerText
+          });
         }
         i += 1;
       });
@@ -91,7 +110,7 @@ async function getTorrent(link) {
     return searchResults;
   } catch (err) {
     console.log(err);
-    return { error: true, message: 'Runtime error occured' };
+    return { error: true, message: "Runtime error occured" };
   }
 }
 
@@ -99,30 +118,30 @@ app.prepare().then(() => {
   const server = express();
 
   server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header("Access-Control-Allow-Origin", "*");
     next();
   });
 
-  server.get('/getSearch', async (req, res) => {
+  server.get("/getSearch", async (req, res) => {
     let search = req.query.search;
     let site = req.query.site;
-    if (search === '' || !search || site === '' || !site) {
-      res.send({ error: true, errorMessage: 'Site or search cannot be empty' });
+    if (search === "" || !search || site === "" || !site) {
+      res.send({ error: true, errorMessage: "Site or search cannot be empty" });
     } else {
       return searchCache({ req, res, site, search });
     }
   });
 
-  server.get('/getTorrent', async (req, res) => {
+  server.get("/getTorrent", async (req, res) => {
     let link = req.query.link;
-    if (link === '' || !link) {
-      res.send({ error: true, errorMessage: 'Link cannot be empty' });
+    if (link === "" || !link) {
+      res.send({ error: true, errorMessage: "Link cannot be empty" });
     } else {
       return torrentCache({ req, res, link });
     }
   });
 
-  server.get('*', (req, res) => {
+  server.get("*", (req, res) => {
     return handle(req, res);
   });
 
